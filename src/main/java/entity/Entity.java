@@ -43,4 +43,13 @@ public abstract class Entity {
     public int getSpriteNum() {
         return spriteNum;
     }
+
+    public Rectangle getWorldSolidArea() {
+        return new Rectangle(
+            worldX + solidArea.x,
+            worldY + solidArea.y,
+            solidArea.width,
+            solidArea.height
+        );
+    }
 }

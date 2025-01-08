@@ -69,4 +69,8 @@ public class Bullet {
     public Direction getDirection() {
         return direction;
     }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 }

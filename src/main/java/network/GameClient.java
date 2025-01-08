@@ -82,7 +82,7 @@ public class GameClient implements Runnable {
         PacketType type = PacketType.values()[data[0]];
         String playerId = packet.getAddress().getHostAddress() + ":" + packet.getPort();
 
-        System.out.println("Received packet type: " + type + " from " + playerId);
+        //System.out.println("Received packet type: " + type + " from " + playerId);
 
         switch (type) {
             case PLAYER_DATA -> {
@@ -110,7 +110,26 @@ public class GameClient implements Runnable {
         );
         
         // Обновляем пули этого игрока с корректным CollisionChecker
-        player.getBullets().forEach(bullet -> bullet.update(collisionChecker));
+        player.getBullets().forEach(bullet -> {
+            bullet.update(collisionChecker);
+            
+            // Проверяем коллизии с локальным игроком
+            if (bullet.isActive() && collisionChecker.checkBulletPlayerCollision(bullet, localPlayer.getWorldSolidArea())) {
+                bullet.setActive(false);
+                // Здесь можно добавить логику урона по игроку
+            }
+            
+            // Проверяем коллизии с другими игроками
+            otherPlayers.forEach((otherId, otherPlayer) -> {
+                if (!otherId.equals(playerId) && // Не проверяем владельца пули
+                    bullet.isActive() && 
+                    collisionChecker.checkBulletPlayerCollision(bullet, otherPlayer.getWorldSolidArea())) {
+                    bullet.setActive(false);
+                    // Здесь можно добавить логику урона по игроку
+                }
+            });
+        });
+        
         // Удаляем неактивные пули
         player.getBullets().removeIf(bullet -> !bullet.isActive());
     }
@@ -131,17 +150,25 @@ public class GameClient implements Runnable {
             );
             sendPacket(packet);
 
-            // Отправляем данные о пулях
+            // Отправляем данные о пулях и проверяем коллизии
             for (Bullet bullet : localPlayer.getBullets()) {
                 if (bullet.isActive()) {
+                    // Проверяем коллизии с другими игроками
+                    otherPlayers.values().forEach(otherPlayer -> {
+                        if (collisionChecker.checkBulletPlayerCollision(bullet, otherPlayer.getWorldSolidArea())) {
+                            bullet.setActive(false);
+                            // Здесь можно добавить логику урона по игроку
+                        }
+                    });
 
-
-                    BulletDataPacket bulletPacket = new BulletDataPacket(
-                            bullet.getWorldX(),
-                            bullet.getWorldY(),
-                            bullet.getDirection()
-                    );
-                    sendPacket(bulletPacket);
+                    if (bullet.isActive()) {
+                        BulletDataPacket bulletPacket = new BulletDataPacket(
+                                bullet.getWorldX(),
+                                bullet.getWorldY(),
+                                bullet.getDirection()
+                        );
+                        sendPacket(bulletPacket);
+                    }
                 }
             }
         } catch (IOException e) {

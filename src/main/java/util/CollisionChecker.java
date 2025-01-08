@@ -67,18 +67,20 @@ public class CollisionChecker {
 
     public boolean checkBulletCollision(Bullet bullet) {
         Rectangle bulletArea = bullet.getCollisionArea();
-
-        // Проверяем коллизии с блоками
         for (int row = 0; row < GameConfig.MAX_WORLD_ROW; row++) {
             for (int col = 0; col < GameConfig.MAX_WORLD_COL; col++) {
-                if (tileManager.getTileNumber(col, row) == 0) { // Предположим, что 0 - это проходимый тайл
+                if (tileManager.getTileNumber(col, row) == 0) {
                     Rectangle blockArea = new Rectangle(col * GameConfig.TILE_SIZE, row * GameConfig.TILE_SIZE, GameConfig.TILE_SIZE, GameConfig.TILE_SIZE);
                     if (bulletArea.intersects(blockArea)) {
-                        return true; // Коллизия обнаружена
+                        return true;
                     }
                 }
             }
         }
-        return false; // Коллизий нет
+        return false;
+    }
+
+    public boolean checkBulletPlayerCollision(Bullet bullet, Rectangle playerArea) {
+        return bullet.getCollisionArea().intersects(playerArea);
     }
 }
