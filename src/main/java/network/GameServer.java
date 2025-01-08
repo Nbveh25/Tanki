@@ -54,15 +54,8 @@ public class GameServer implements Runnable {
         PacketType type = PacketType.values()[data[0]];
         String clientId = packet.getAddress().getHostAddress() + ":" + packet.getPort();
 
-        //System.out.println("Received packet type: " + type + " from " + clientId);
-
         switch (type) {
-            case BULLET_DATA -> {
-                //BulletDataPacket bulletPacket = new BulletDataPacket(data);
-                broadcastToOtherClients(packet, clientId);
-            }
-            case PLAYER_DATA -> {
-                //PlayerDataPacket posPacket = new PlayerDataPacket(data);
+            case BULLET_DATA, PLAYER_DATA -> {
                 broadcastToOtherClients(packet, clientId);
             }
             case CONNECT -> {

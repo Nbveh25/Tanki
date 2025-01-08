@@ -83,4 +83,8 @@ public class CollisionChecker {
     public boolean checkBulletPlayerCollision(Bullet bullet, Rectangle playerArea) {
         return bullet.getCollisionArea().intersects(playerArea);
     }
+
+    public boolean checkPlayerCollision(Rectangle player1Area, Rectangle player2Area) {
+        return player1Area.intersects(player2Area);
+    }
 }

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.Map;
 
 public class Player extends Entity {
     private final InputHandler inputHandler;
@@ -45,6 +46,10 @@ public class Player extends Entity {
 
     @Override
     public void update() {
+        update(null);
+    }
+
+    public void update(Map<String, Player> otherPlayers) {
         if (inputHandler != null) {
             // Обновляем существующие пули
             bullets.removeIf(bullet -> {
@@ -67,7 +72,11 @@ public class Player extends Entity {
                     direction = Direction.RIGHT;
                 }
 
-                // Проверяем коллизии
+                // Сохраняем предыдущие координаты
+                int prevWorldX = worldX;
+                int prevWorldY = worldY;
+
+                // Проверяем коллизии с тайлами
                 collisionChecker.checkTile(this);
 
                 // Двигаемся только если нет коллизии
@@ -77,6 +86,25 @@ public class Player extends Entity {
                         case DOWN -> worldY += speed;
                         case LEFT -> worldX -= speed;
                         case RIGHT -> worldX += speed;
+                    }
+                }
+
+                // Проверяем коллизии с другими танками
+                if (otherPlayers != null && collisionChecker != null) {
+                    Rectangle newPosition = getWorldSolidArea();
+                    boolean hasCollision = false;
+
+                    for (Player otherPlayer : otherPlayers.values()) {
+                        if (collisionChecker.checkPlayerCollision(newPosition, otherPlayer.getWorldSolidArea())) {
+                            hasCollision = true;
+                            break;
+                        }
+                    }
+
+                    // Если есть коллизия с другим танком, возвращаемся на предыдущую позицию
+                    if (hasCollision) {
+                        worldX = prevWorldX;
+                        worldY = prevWorldY;
                     }
                 }
 
@@ -148,11 +176,11 @@ public class Player extends Entity {
     }
 
     private void setDefaultValues() {
-        //Random random = new Random();
-        //worldX = random.nextInt(50) * GameConfig.TILE_SIZE;
-        //worldY = random.nextInt(50) * GameConfig.TILE_SIZE;
-        worldX = 5 * GameConfig.TILE_SIZE;
-        worldY = 5 * GameConfig.TILE_SIZE;
+        Random random = new Random();
+        worldX = random.nextInt(5) * GameConfig.TILE_SIZE;
+        worldY = random.nextInt(5) * GameConfig.TILE_SIZE;
+        //worldX = 5 * GameConfig.TILE_SIZE;
+        //worldY = 5 * GameConfig.TILE_SIZE;
         speed = 1;
         direction = Direction.DOWN;
     }

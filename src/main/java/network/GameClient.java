@@ -82,20 +82,18 @@ public class GameClient implements Runnable {
         PacketType type = PacketType.values()[data[0]];
         String playerId = packet.getAddress().getHostAddress() + ":" + packet.getPort();
 
-        //System.out.println("Received packet type: " + type + " from " + playerId);
-
         switch (type) {
             case PLAYER_DATA -> {
                 PlayerDataPacket posPacket = new PlayerDataPacket(data);
                 updatePlayerPosition(playerId, posPacket);
             }
-            case CONNECT_CONFIRM -> {
-                connected = true;
-                System.out.println("Connected to server successfully!");
-            }
             case BULLET_DATA -> {
                 BulletDataPacket bulletPacket = new BulletDataPacket(data);
                 handleBulletData(playerId, bulletPacket);
+            }
+            case CONNECT_CONFIRM -> {
+                connected = true;
+                System.out.println("Connected to server successfully!");
             }
         }
     }

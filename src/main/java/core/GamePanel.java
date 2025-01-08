@@ -72,11 +72,13 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     private void update() {
-        player.update();
-        camera.update(player);
-        
         if (gameClient != null) {
+            player.update(gameClient.getOtherPlayers());
+            camera.update(player);
             gameClient.sendPlayerPosition();
+        } else {
+            player.update(null);
+            camera.update(player);
         }
     }
 
