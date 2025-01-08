@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 public class Player extends Entity {
     private final InputHandler inputHandler;
@@ -44,51 +45,52 @@ public class Player extends Entity {
 
     @Override
     public void update() {
-        // Обновляем существующие пули
-        bullets.removeIf(bullet -> {
-            bullet.update(collisionChecker);
-            return !bullet.isActive();
-        });
+        if (inputHandler != null) {
+            // Обновляем существующие пули
+            bullets.removeIf(bullet -> {
+                bullet.update(collisionChecker);
+                return !bullet.isActive();
+            });
 
-        if (inputHandler.isUpPressed() || inputHandler.isDownPressed() || 
-            inputHandler.isLeftPressed() || inputHandler.isRightPressed()) {
-            
-            collisionOn = false;
-            
-            if (inputHandler.isUpPressed()) {
-                direction = Direction.UP;
-            } else if (inputHandler.isDownPressed()) {
-                direction = Direction.DOWN;
-            } else if (inputHandler.isLeftPressed()) {
-                direction = Direction.LEFT;
-            } else if (inputHandler.isRightPressed()) {
-                direction = Direction.RIGHT;
-            }
+            if (inputHandler.isUpPressed() || inputHandler.isDownPressed() ||
+                inputHandler.isLeftPressed() || inputHandler.isRightPressed()) {
 
-            // Проверяем коллизии
-            collisionChecker.checkTile(this);
+                collisionOn = false;
 
-            // Двигаемся только если нет коллизии
-            if (!collisionOn) {
-                switch (direction) {
-                    case UP -> worldY -= speed;
-                    case DOWN -> worldY += speed;
-                    case LEFT -> worldX -= speed;
-                    case RIGHT -> worldX += speed;
+                if (inputHandler.isUpPressed()) {
+                    direction = Direction.UP;
+                } else if (inputHandler.isDownPressed()) {
+                    direction = Direction.DOWN;
+                } else if (inputHandler.isLeftPressed()) {
+                    direction = Direction.LEFT;
+                } else if (inputHandler.isRightPressed()) {
+                    direction = Direction.RIGHT;
+                }
+
+                // Проверяем коллизии
+                collisionChecker.checkTile(this);
+
+                // Двигаемся только если нет коллизии
+                if (!collisionOn) {
+                    switch (direction) {
+                        case UP -> worldY -= speed;
+                        case DOWN -> worldY += speed;
+                        case LEFT -> worldX -= speed;
+                        case RIGHT -> worldX += speed;
+                    }
+                }
+
+                spriteCounter++;
+                if (spriteCounter > 14) {
+                    spriteNum = (spriteNum == 1) ? 2 : 1;
+                    spriteCounter = 0;
                 }
             }
 
-            spriteCounter++;
-            if (spriteCounter > 14) {
-                spriteNum = (spriteNum == 1) ? 2 : 1;
-                spriteCounter = 0;
+            if (inputHandler.isFirePressed()) {
+                fire();
             }
         }
-
-        if (inputHandler.isFirePressed()) {
-            fire();
-        }
-
     }
 
     private void fire() {
@@ -125,49 +127,30 @@ public class Player extends Entity {
 
     @Override
     public void draw(Graphics2D g2) {
-
         Camera camera = Camera.getInstance(GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
-        int screenX = getWorldX() - camera.getX();
-        int screenY = getWorldY() - camera.getY();
-        BufferedImage image = null;
+        int screenX = worldX - camera.getX();
+        int screenY = worldY - camera.getY();
 
+        BufferedImage image = null;
         switch (direction) {
-            case UP:
-                if (spriteNum == 1) {
-                    image = up1;
-                } else if (spriteNum == 2) {
-                    image = up2;
-                }
-                break;
-            case DOWN:
-                if (spriteNum == 1) {
-                    image = down1;
-                } else if (spriteNum == 2) {
-                    image = down2;
-                }
-                break;
-            case LEFT:
-                if (spriteNum == 1) {
-                    image = left1;
-                } else if (spriteNum == 2) {
-                    image = left2;
-                }
-                break;
-            case RIGHT:
-                if (spriteNum == 1) {
-                    image = right1;
-                } else if (spriteNum == 2) {
-                    image = right2;
-                }
-                break;
-            default:
-                image = null;
+            case UP -> image = (spriteNum == 1) ? up1 : up2;
+            case DOWN -> image = (spriteNum == 1) ? down1 : down2;
+            case LEFT -> image = (spriteNum == 1) ? left1 : left2;
+            case RIGHT -> image = (spriteNum == 1) ? right1 : right2;
         }
-        g2.drawImage(image, screenX, screenY, GameConfig.TILE_SIZE, GameConfig.TILE_SIZE, null);
+
+        if (image != null) {
+            g2.drawImage(image, screenX, screenY, GameConfig.TILE_SIZE, GameConfig.TILE_SIZE, null);
+        }
+
+        // Отрисовываем все пули
         bullets.forEach(bullet -> bullet.draw(g2));
     }
 
     private void setDefaultValues() {
+        //Random random = new Random();
+        //worldX = random.nextInt(50) * GameConfig.TILE_SIZE;
+        //worldY = random.nextInt(50) * GameConfig.TILE_SIZE;
         worldX = 5 * GameConfig.TILE_SIZE;
         worldY = 5 * GameConfig.TILE_SIZE;
         speed = 1;
@@ -187,5 +170,20 @@ public class Player extends Entity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void updatePlayer(int newWorldX, int newWorldY, Direction newDirection, int spriteNum) {
+        this.worldX = newWorldX;
+        this.worldY = newWorldY;
+        this.direction = newDirection;
+        this.spriteNum = spriteNum;
+    }
+
+    public void addBullet(int x, int y, Direction direction) {
+        bullets.add(new Bullet(x, y, direction));
+    }
+
+    public List<Bullet> getBullets() {
+        return bullets;
     }
 }

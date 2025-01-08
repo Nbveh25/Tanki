@@ -30,15 +30,13 @@ public class Bullet {
             case RIGHT -> worldX += speed;
         }
 
-        if (collisionChecker.checkBulletCollision(this)) {
-            active = false; // Деактивируем снаряд при столкновении
-        }
-
-        // Деактивируем снаряд, если он выходит за пределы мира
-        if (worldX < 0 || worldX > GameConfig.WORLD_WIDTH || 
-            worldY < 0 || worldY > GameConfig.WORLD_HEIGHT) {
+        if (collisionChecker.checkBulletCollision(this) || isOutOfBounds()) {
             active = false;
         }
+    }
+
+    private boolean isOutOfBounds() {
+        return worldX < 0 || worldX > GameConfig.WORLD_WIDTH || worldY < 0 || worldY > GameConfig.WORLD_HEIGHT;
     }
 
     public void draw(Graphics2D g2) {
@@ -58,5 +56,17 @@ public class Bullet {
 
     public Rectangle getCollisionArea() {
         return new Rectangle(worldX, worldY, BULLET_SIZE, BULLET_SIZE);
+    }
+
+    public int getWorldX() {
+        return worldX;
+    }
+
+    public int getWorldY() {
+        return worldY;
+    }
+
+    public Direction getDirection() {
+        return direction;
     }
 }

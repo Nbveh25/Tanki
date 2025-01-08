@@ -5,8 +5,8 @@ import javax.swing.*;
 public class Game {
     private final GamePanel gamePanel;
 
-    public Game() {
-        this.gamePanel = new GamePanel();
+    public Game(boolean isHost, String serverIp) {
+        this.gamePanel = new GamePanel(isHost, serverIp);
     }
 
     public void start() {

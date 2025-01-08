@@ -5,10 +5,12 @@ import entity.Player;
 import input.InputHandler;
 import manager.TileManager;
 import util.CollisionChecker;
-
+import network.GameServer;
+import network.GameClient;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 public class GamePanel extends JPanel implements Runnable {
     private Thread gameThread;
@@ -17,8 +19,9 @@ public class GamePanel extends JPanel implements Runnable {
     private final Camera camera;
 
     private TileManager tileManager;
+    private GameClient gameClient;
 
-    public GamePanel() {
+    public GamePanel(boolean isHost, String serverIp) {
         setPreferredSize(new Dimension(GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT));
         setBackground(Color.BLACK);
         setDoubleBuffered(true);
@@ -31,6 +34,17 @@ public class GamePanel extends JPanel implements Runnable {
 
         addKeyListener(inputHandler);
         setFocusable(true);
+
+        try {
+            if (isHost) {
+                GameServer server = new GameServer();
+                new Thread(server).start();
+            }
+            gameClient = new GameClient(serverIp, player);
+            new Thread(gameClient).start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void startGameThread() {
@@ -60,6 +74,10 @@ public class GamePanel extends JPanel implements Runnable {
     private void update() {
         player.update();
         camera.update(player);
+        
+        if (gameClient != null) {
+            gameClient.sendPlayerPosition();
+        }
     }
 
     @Override
@@ -69,7 +87,13 @@ public class GamePanel extends JPanel implements Runnable {
 
         tileManager.draw(g2);
         player.draw(g2);
-
+        
+        if (gameClient != null) {
+            gameClient.getOtherPlayers().values().forEach(otherPlayer -> {
+                otherPlayer.draw(g2);
+                otherPlayer.getBullets().forEach(bullet -> bullet.draw(g2));
+            });
+        }
 
         g2.dispose();
     }

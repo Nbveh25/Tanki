@@ -39,4 +39,8 @@ public abstract class Entity {
     public Direction getDirection() {
         return direction;
     }
-} 
+
+    public int getSpriteNum() {
+        return spriteNum;
+    }
+}
