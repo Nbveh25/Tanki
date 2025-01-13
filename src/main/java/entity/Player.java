@@ -4,6 +4,7 @@ import config.GameConfig;
 import core.Camera;
 import enums.Direction;
 import input.InputHandler;
+import ui.GameOverMenu;
 import util.CollisionChecker;
 
 import javax.imageio.ImageIO;
@@ -16,6 +17,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.Map;
 
+
 public class Player extends Entity {
     private final InputHandler inputHandler;
     private final int screenX;
@@ -25,6 +27,11 @@ public class Player extends Entity {
 
     private long lastFireTime;
     private final long fireCooldown = 500;
+
+    private long lastDamageTime;
+    private final long DAMAGE_COOLDOWN = 500;
+
+    private boolean isDead = false;
 
     public Player(InputHandler inputHandler, CollisionChecker collisionChecker) {
         this.inputHandler = inputHandler;
@@ -209,11 +216,46 @@ public class Player extends Entity {
     }
 
     public void takeDamage(int damage) {
-        if (health - damage <= 0) {
-            health = 0;
-        } else {
-            health -= damage;
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastDamageTime < DAMAGE_COOLDOWN) {
+            return; // Игрок неуязвим после недавнего получения урона
         }
+
+        if (!isDead) {
+            health -= damage;
+            lastDamageTime = currentTime;
+
+            if (health <= 0) {
+                health = 0;
+                isDead = true;
+                showGameOverMenu();
+            }
+        }
+    }
+
+    private void showGameOverMenu() {
+        GameOverMenu menu = new GameOverMenu(this::respawn, this::exitGame);
+        menu.setVisible(true);
+    }
+
+    private void respawn() {
+        // Удаляем спрайт игрока с карты
+        // Здесь можно добавить логику для удаления спрайта из игрового мира
+        isDead = false;
+        health = 100; // Восстанавливаем здоровье
+
+        // Генерируем новое место для респавна
+        Random random = new Random();
+        int newX = random.nextInt(GameConfig.MAX_WORLD_COL) * GameConfig.TILE_SIZE;
+        int newY = random.nextInt(GameConfig.MAX_WORLD_ROW) * GameConfig.TILE_SIZE;
+
+        // Устанавливаем новые координаты
+        this.worldX = newX;
+        this.worldY = newY;
+    }
+
+    private void exitGame() {
+        System.exit(0); // Закрываем игру
     }
 
     public void addBullet(int x, int y, Direction direction) {
