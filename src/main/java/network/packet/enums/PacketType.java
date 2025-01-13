@@ -5,5 +5,6 @@ public enum PacketType {
     CONNECT_CONFIRM,
     DISCONNECT,
     PLAYER_DATA,
-    BULLET_DATA
+    BULLET_DATA,
+    BONUS
 } 

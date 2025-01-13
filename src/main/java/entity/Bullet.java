@@ -14,6 +14,8 @@ public class Bullet {
     private boolean active;
     private static final int BULLET_SIZE = 8;
 
+    private final int damage = 20;
+
     public Bullet(int worldX, int worldY, Direction direction) {
         this.worldX = worldX;
         this.worldY = worldY;
@@ -68,6 +70,10 @@ public class Bullet {
 
     public Direction getDirection() {
         return direction;
+    }
+
+    public int getDamage() {
+        return damage;
     }
 
     public void setActive(boolean active) {

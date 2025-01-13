@@ -96,7 +96,7 @@ public class GameServer implements Runnable {
                     client.port()
                 );
                 socket.send(broadcastPacket);
-                System.out.println("Broadcasting to client: " + entry.getKey());
+                //System.out.println("Broadcasting to client: " + entry.getKey());
             }
         }
     }

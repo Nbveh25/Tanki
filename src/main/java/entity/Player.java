@@ -179,6 +179,7 @@ public class Player extends Entity {
         Random random = new Random();
         worldX = random.nextInt(5) * GameConfig.TILE_SIZE;
         worldY = random.nextInt(5) * GameConfig.TILE_SIZE;
+        health = 100;
         //worldX = 5 * GameConfig.TILE_SIZE;
         //worldY = 5 * GameConfig.TILE_SIZE;
         speed = 1;
@@ -205,6 +206,14 @@ public class Player extends Entity {
         this.worldY = newWorldY;
         this.direction = newDirection;
         this.spriteNum = spriteNum;
+    }
+
+    public void takeDamage(int damage) {
+        if (health - damage <= 0) {
+            health = 0;
+        } else {
+            health -= damage;
+        }
     }
 
     public void addBullet(int x, int y, Direction direction) {

@@ -9,6 +9,8 @@ public abstract class Entity {
     protected int worldX;
     protected int worldY;
     protected int speed;
+    protected int health;
+
     protected BufferedImage up1, up2, down1, down2, left1, left2, right1, right2;
     protected Direction direction;
 
@@ -42,6 +44,10 @@ public abstract class Entity {
 
     public int getSpriteNum() {
         return spriteNum;
+    }
+
+    public int getHealth() {
+        return health;
     }
 
     public Rectangle getWorldSolidArea() {

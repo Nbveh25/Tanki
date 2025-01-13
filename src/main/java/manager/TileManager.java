@@ -37,7 +37,7 @@ public class TileManager {
                 int screenX = worldX - camera.getX();
                 int screenY = worldY - camera.getY();
 
-                g2.drawImage(tiles[tileNum].getImage(), screenX, screenY, null);
+                g2.drawImage(tiles[tileNum].getImage(), screenX, screenY, GameConfig.TILE_SIZE, GameConfig.TILE_SIZE, null);
             }
         }
     }

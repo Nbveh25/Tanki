@@ -115,6 +115,8 @@ public class GameClient implements Runnable {
             if (bullet.isActive() && collisionChecker.checkBulletPlayerCollision(bullet, localPlayer.getWorldSolidArea())) {
                 bullet.setActive(false);
                 // Здесь можно добавить логику урона по игроку
+                localPlayer.takeDamage(bullet.getDamage());
+                System.out.println("Health: " + localPlayer.getHealth());
             }
             
             // Проверяем коллизии с другими игроками

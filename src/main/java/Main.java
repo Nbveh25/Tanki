@@ -27,7 +27,7 @@ public class Main {
         frame.add(ipField);
         frame.add(hostLabel);
         frame.add(hostCheckBox);
-        frame.add(new JLabel()); // Пустая ячейка для выравнивания
+        frame.add(new JLabel());
         frame.add(startButton);
 
         // Обработчик события для кнопки
