@@ -20,9 +20,6 @@ public abstract class Entity {
     protected Rectangle solidArea;
     protected boolean collisionOn = false;
 
-    public abstract void update();
-    public abstract void draw(Graphics2D g2);
-    
     public int getWorldX() { return worldX; }
     public int getWorldY() { return worldY; }
 

@@ -33,8 +33,8 @@ public class GameServer implements Runnable {
             try {
                 Arrays.fill(receiveData, (byte) 0);
                 DatagramPacket receivePacket = new DatagramPacket(
-                    receiveData, 
-                    receiveData.length
+                        receiveData,
+                        receiveData.length
                 );
                 socket.receive(receivePacket);
 
@@ -76,10 +76,10 @@ public class GameServer implements Runnable {
     private void sendConnectionConfirmation(InetAddress address, int port) throws IOException {
         byte[] confirmData = new byte[]{(byte) PacketType.CONNECT_CONFIRM.ordinal()};
         DatagramPacket confirmPacket = new DatagramPacket(
-            confirmData,
-            confirmData.length,
-            address,
-            port
+                confirmData,
+                confirmData.length,
+                address,
+                port
         );
         socket.send(confirmPacket);
         System.out.println("Sent connection confirmation to " + address + ":" + port);
@@ -90,10 +90,10 @@ public class GameServer implements Runnable {
             if (!entry.getKey().equals(sourceClientId)) {
                 ClientInfo client = entry.getValue();
                 DatagramPacket broadcastPacket = new DatagramPacket(
-                    sourcePacket.getData(),
-                    sourcePacket.getLength(),
-                    client.address(),
-                    client.port()
+                        sourcePacket.getData(),
+                        sourcePacket.getLength(),
+                        client.address(),
+                        client.port()
                 );
                 socket.send(broadcastPacket);
                 //System.out.println("Broadcasting to client: " + entry.getKey());

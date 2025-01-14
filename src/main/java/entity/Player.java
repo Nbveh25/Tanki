@@ -32,6 +32,7 @@ public class Player extends Entity {
     private final long DAMAGE_COOLDOWN = 500;
 
     private boolean isDead = false;
+    private boolean respawnMenuOpen = false;
 
     public Player(InputHandler inputHandler, CollisionChecker collisionChecker) {
         this.inputHandler = inputHandler;
@@ -41,22 +42,18 @@ public class Player extends Entity {
         screenX = GameConfig.SCREEN_WIDTH / 2 - (GameConfig.TILE_SIZE / 2);
         screenY = GameConfig.SCREEN_HEIGHT / 2 - (GameConfig.TILE_SIZE / 2);
 
-        solidArea = new Rectangle();
-        solidArea.x = 4;
-        solidArea.y = 4;
-        solidArea.width = 40;
-        solidArea.height = 40;
-
+        setCollision(true);
         setDefaultValues();
         getPlayerImage();
     }
 
-    @Override
-    public void update() {
-        update(null);
-    }
 
     public void update(Map<String, Player> otherPlayers) {
+
+        if (respawnMenuOpen || isDead) {
+            return; // Если меню респавна открыто или игрок мертв, не обновляем игрока
+        }
+
         if (inputHandler != null) {
             // Обновляем существующие пули
             bullets.removeIf(bullet -> {
@@ -102,7 +99,7 @@ public class Player extends Entity {
                     boolean hasCollision = false;
 
                     for (Player otherPlayer : otherPlayers.values()) {
-                        if (collisionChecker.checkPlayerCollision(newPosition, otherPlayer.getWorldSolidArea())) {
+                        if (!otherPlayer.isDead && collisionChecker.checkPlayerCollision(newPosition, otherPlayer.getWorldSolidArea())) {
                             hasCollision = true;
                             break;
                         }
@@ -160,8 +157,12 @@ public class Player extends Entity {
         }
     }
 
-    @Override
     public void draw(Graphics2D g2) {
+
+        if (isDead) {
+            return; // Не отрисовываем спрайт, если игрок мертв
+        }
+
         Camera camera = Camera.getInstance(GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
         int screenX = worldX - camera.getX();
         int screenY = worldY - camera.getY();
@@ -234,6 +235,7 @@ public class Player extends Entity {
     }
 
     private void showGameOverMenu() {
+        respawnMenuOpen = true;
         GameOverMenu menu = new GameOverMenu(this::respawn, this::exitGame);
         menu.setVisible(true);
     }
@@ -241,7 +243,8 @@ public class Player extends Entity {
     private void respawn() {
         // Удаляем спрайт игрока с карты
         // Здесь можно добавить логику для удаления спрайта из игрового мира
-        isDead = false;
+        isDead = false; // Игрок больше не мертв
+        respawnMenuOpen = false;
         health = 100; // Восстанавливаем здоровье
 
         // Генерируем новое место для респавна
@@ -254,6 +257,22 @@ public class Player extends Entity {
         this.worldY = newY;
     }
 
+    private void setCollision(boolean mode) {
+        if (mode) {
+            solidArea = new Rectangle();
+            solidArea.x = 4;
+            solidArea.y = 4;
+            solidArea.width = 40;
+            solidArea.height = 40;
+        } else {
+            solidArea = null;
+        }
+    }
+
+    public void updateState(boolean isDead) {
+        this.isDead = isDead; // Устанавливаем состояние мертвого игрока
+    }
+
     private void exitGame() {
         System.exit(0); // Закрываем игру
     }
@@ -264,5 +283,9 @@ public class Player extends Entity {
 
     public List<Bullet> getBullets() {
         return bullets;
+    }
+
+    public boolean isDead() {
+        return isDead;
     }
 }

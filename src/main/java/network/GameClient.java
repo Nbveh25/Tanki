@@ -106,11 +106,14 @@ public class GameClient implements Runnable {
                 posPacket.getDirection(),
                 posPacket.getSpriteNum()
         );
-        
+
+        // Обновляем состояние мертвого игрока
+        player.updateState(posPacket.isDead());
+
         // Обновляем пули этого игрока с корректным CollisionChecker
         player.getBullets().forEach(bullet -> {
             bullet.update(collisionChecker);
-            
+
             // Проверяем коллизии с локальным игроком
             if (bullet.isActive() && collisionChecker.checkBulletPlayerCollision(bullet, localPlayer.getWorldSolidArea())) {
                 bullet.setActive(false);
@@ -118,18 +121,18 @@ public class GameClient implements Runnable {
                 localPlayer.takeDamage(bullet.getDamage());
                 System.out.println("Health: " + localPlayer.getHealth());
             }
-            
+
             // Проверяем коллизии с другими игроками
             otherPlayers.forEach((otherId, otherPlayer) -> {
                 if (!otherId.equals(playerId) && // Не проверяем владельца пули
-                    bullet.isActive() && 
-                    collisionChecker.checkBulletPlayerCollision(bullet, otherPlayer.getWorldSolidArea())) {
+                        bullet.isActive() &&
+                        collisionChecker.checkBulletPlayerCollision(bullet, otherPlayer.getWorldSolidArea())) {
                     bullet.setActive(false);
                     // Здесь можно добавить логику урона по игроку
                 }
             });
         });
-        
+
         // Удаляем неактивные пули
         player.getBullets().removeIf(bullet -> !bullet.isActive());
     }
@@ -146,7 +149,8 @@ public class GameClient implements Runnable {
                     localPlayer.getWorldX(),
                     localPlayer.getWorldY(),
                     localPlayer.getDirection(),
-                    localPlayer.getSpriteNum()
+                    localPlayer.getSpriteNum(),
+                    localPlayer.isDead() // Отправляем состояние мертвого игрока
             );
             sendPacket(packet);
 
@@ -155,7 +159,7 @@ public class GameClient implements Runnable {
                 if (bullet.isActive()) {
                     // Проверяем коллизии с другими игроками
                     otherPlayers.values().forEach(otherPlayer -> {
-                        if (collisionChecker.checkBulletPlayerCollision(bullet, otherPlayer.getWorldSolidArea())) {
+                        if (collisionChecker.checkBulletPlayerCollision(bullet, otherPlayer.getWorldSolidArea()) && !otherPlayer.isDead()) {
                             bullet.setActive(false);
                             // Здесь можно добавить логику урона по игроку
                         }
@@ -208,13 +212,13 @@ public class GameClient implements Runnable {
         if (player != null) {
             // Проверяем, нет ли уже такой пули
             boolean bulletExists = player.getBullets().stream()
-                    .anyMatch(b -> b.getWorldX() == packet.getX() && 
-                                 b.getWorldY() == packet.getY() && 
-                                 b.getDirection() == packet.getDirection());
-            
+                    .anyMatch(b -> b.getWorldX() == packet.getX() &&
+                            b.getWorldY() == packet.getY() &&
+                            b.getDirection() == packet.getDirection());
+
             if (!bulletExists) {
                 player.addBullet(packet.getX(), packet.getY(), packet.getDirection());
             }
         }
     }
-} 
+}
