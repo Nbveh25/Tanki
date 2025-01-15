@@ -190,7 +190,7 @@ public class Player extends Entity {
         health = 100;
         //worldX = 5 * GameConfig.TILE_SIZE;
         //worldY = 5 * GameConfig.TILE_SIZE;
-        speed = 1;
+        speed = 10;
         direction = Direction.DOWN;
     }
 
@@ -255,6 +255,14 @@ public class Player extends Entity {
         // Устанавливаем новые координаты
         this.worldX = newX;
         this.worldY = newY;
+    }
+
+    public void heal(int value) {
+        if (health + value <= 100) {
+            health += value;
+        } else {
+            health = 100;
+        }
     }
 
     private void setCollision(boolean mode) {

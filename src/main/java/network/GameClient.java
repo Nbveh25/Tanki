@@ -3,13 +3,16 @@ package network;
 import config.NetworkConfig;
 import entity.Bullet;
 import entity.Player;
+import manager.ObjectManager;
 import manager.TileManager;
 import network.packet.Packet;
 import network.packet.impl.ConnectPacket;
 import network.packet.impl.DisconnectPacket;
 import network.packet.impl.PlayerDataPacket;
 import network.packet.impl.BulletDataPacket;
+import network.packet.impl.BonusPacket;
 import network.packet.enums.PacketType;
+import object.OBJ_Heart;
 import util.CollisionChecker;
 
 import java.io.IOException;
@@ -30,6 +33,7 @@ public class GameClient implements Runnable {
 
     private final Player localPlayer;
     private final Map<String, Player> otherPlayers;
+    private final ObjectManager objectManager;
 
     public GameClient(String serverIp, Player localPlayer) throws IOException {
         System.out.println("Initializing client, connecting to server: " + serverIp);
@@ -41,6 +45,7 @@ public class GameClient implements Runnable {
         this.running = true;
         this.connected = false;
         this.collisionChecker = new CollisionChecker(new TileManager());
+        this.objectManager = new ObjectManager(this);
 
         // Отправляем пакет подключения
         sendConnectPacket();
@@ -94,6 +99,10 @@ public class GameClient implements Runnable {
             case CONNECT_CONFIRM -> {
                 connected = true;
                 System.out.println("Connected to server successfully!");
+            }
+            case BONUS -> {
+                BonusPacket bonusPacket = new BonusPacket(data);
+                handleBonus(bonusPacket);
             }
         }
     }
@@ -220,5 +229,40 @@ public class GameClient implements Runnable {
                 player.addBullet(packet.getX(), packet.getY(), packet.getDirection());
             }
         }
+    }
+
+    public void sendBonusPickup(int x, int y) {
+        if (!connected) return;
+        
+        try {
+            BonusPacket packet = new BonusPacket(x, y, false, 0); // isActive = false означает, что бонус подобран
+            sendPacket(packet);
+            System.out.println("Sent bonus pickup at: " + x + ", " + y);
+        } catch (IOException e) {
+            System.err.println("Failed to send bonus pickup: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void handleBonus(BonusPacket packet) {
+        if (packet.getType() == 0) { // Сердце
+            if (packet.isActive()) {
+                // Создаем новое сердце
+                OBJ_Heart heart = new OBJ_Heart();
+                heart.worldX = packet.getX();
+                heart.worldY = packet.getY();
+                heart.isActive = true;
+                objectManager.addHeart(heart);
+                System.out.println("Received heart at: " + packet.getX() + ", " + packet.getY());
+            } else {
+                // Деактивируем существующее сердце
+                objectManager.deactivateHeart(packet.getX(), packet.getY());
+                System.out.println("Deactivated heart at: " + packet.getX() + ", " + packet.getY());
+            }
+        }
+    }
+
+    public ObjectManager getObjectManager() {
+        return objectManager;
     }
 }

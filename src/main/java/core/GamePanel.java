@@ -76,6 +76,11 @@ public class GamePanel extends JPanel implements Runnable {
         if (gameClient != null) {
             player.update(gameClient.getOtherPlayers());
             camera.update(player);
+            
+            // Проверяем коллизии с бонусами
+            gameClient.getObjectManager().checkCollision(player);
+            gameClient.getObjectManager().removeInactiveHearts();
+            
             gameClient.sendPlayerPosition();
         } else {
             player.update(null);
@@ -92,6 +97,7 @@ public class GamePanel extends JPanel implements Runnable {
         player.draw(g2);
         
         if (gameClient != null) {
+            gameClient.getObjectManager().draw(g2);
             gameClient.getOtherPlayers().values().forEach(otherPlayer -> {
                 otherPlayer.draw(g2);
                 otherPlayer.getBullets().forEach(bullet -> bullet.draw(g2));
