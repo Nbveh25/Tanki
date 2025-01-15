@@ -7,6 +7,7 @@ import network.packet.impl.BulletDataPacket;
 import network.packet.impl.PlayerDataPacket;
 import network.packet.impl.BonusPacket;
 import network.packet.enums.PacketType;
+import manager.BonusManager;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -19,26 +20,25 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class GameServer implements Runnable {
-    private static final int MAX_BONUSES = 8;
     private final DatagramSocket socket;
     private final byte[] receiveData;
     private final ConcurrentHashMap<String, ClientInfo> clients;
     private boolean running;
-    private final List<BonusInfo> bonuses;
+    private final BonusManager bonusManager;
 
     public GameServer() throws IOException {
         System.out.println("Starting server on port " + NetworkConfig.SERVER_PORT);
         this.socket = new DatagramSocket(NetworkConfig.SERVER_PORT);
         this.receiveData = new byte[NetworkConfig.BUFFER_SIZE];
         this.clients = new ConcurrentHashMap<>();
-        this.bonuses = new ArrayList<>();
         this.running = true;
+        this.bonusManager = new BonusManager(this);
     }
 
     @Override
     public void run() {
         System.out.println("Server is running...");
-        startBonusSpawnTimer();
+        bonusManager.start();
         while (running) {
             try {
                 Arrays.fill(receiveData, (byte) 0);
@@ -59,51 +59,7 @@ public class GameServer implements Runnable {
         }
     }
 
-    private void startBonusSpawnTimer() {
-        new Thread(() -> {
-            while (running) {
-                try {
-                    Thread.sleep(10000); // Каждые 10 секунд
-                    // Очищаем список от неактивных бонусов
-                    bonuses.removeIf(bonus -> !bonus.isActive);
-                    // Спавним новые бонусы
-                    for(int i = 0; i < 3 && bonuses.size() < MAX_BONUSES; i++) {
-                        spawnBonus();
-                    }
-                } catch (InterruptedException e) {
-                    if (running) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
-    }
-
-    private void spawnBonus() {
-        if (clients.isEmpty()) return;
-        
-        // Проверяем количество активных бонусов
-        long activeCount = bonuses.stream().filter(b -> b.isActive).count();
-        if (activeCount >= MAX_BONUSES) {
-            return; // Не спавним новые бонусы, если достигнут лимит
-        }
-
-        // Спавним бонус в случайной позиции на карте
-        Random random = new Random();
-        int x = random.nextInt(GameConfig.MAX_WORLD_COL) * GameConfig.TILE_SIZE;
-        int y = random.nextInt(GameConfig.MAX_WORLD_ROW) * GameConfig.TILE_SIZE;
-
-        BonusInfo bonus = new BonusInfo(x, y);
-        bonuses.add(bonus);
-
-        // Отправляем всем клиентам
-        BonusPacket packet = new BonusPacket(x, y, true, 0);
-        broadcastPacket(packet);
-        System.out.println("Spawned bonus at: " + x + ", " + y + " (tile: " + x/GameConfig.TILE_SIZE + ", " + y/GameConfig.TILE_SIZE + ")");
-        System.out.println("Active bonuses: " + (activeCount + 1) + "/" + MAX_BONUSES);
-    }
-
-    private void broadcastPacket(Packet packet) {
+    public void broadcastPacket(Packet packet) {
         for (ClientInfo client : clients.values()) {
             try {
                 DatagramPacket datagramPacket = new DatagramPacket(
@@ -132,13 +88,7 @@ public class GameServer implements Runnable {
                 if (type == PacketType.BONUS) {
                     BonusPacket bonusPacket = new BonusPacket(data);
                     if (!bonusPacket.isActive()) {
-                        // Находим и деактивируем бонус в списке
-                        for (BonusInfo bonus : bonuses) {
-                            if (bonus.x == bonusPacket.getX() && bonus.y == bonusPacket.getY()) {
-                                bonus.isActive = false;
-                                break;
-                            }
-                        }
+                        bonusManager.deactivateBonus(bonusPacket.getX(), bonusPacket.getY());
                     }
                 }
             }
@@ -151,19 +101,15 @@ public class GameServer implements Runnable {
                 sendConnectionConfirmation(packet.getAddress(), packet.getPort());
                 
                 // Отправляем информацию о существующих бонусах
-                for (BonusInfo bonus : bonuses) {
-                    if (bonus.isActive) {
-                        BonusPacket bonusPacket = new BonusPacket(
-                            bonus.x, bonus.y, true, 0
-                        );
-                        DatagramPacket bonusDataPacket = new DatagramPacket(
-                            bonusPacket.getData(),
-                            bonusPacket.getData().length,
-                            packet.getAddress(),
-                            packet.getPort()
-                        );
-                        socket.send(bonusDataPacket);
-                    }
+                for (BonusManager.BonusInfo bonus : bonusManager.getActiveBonuses()) {
+                    BonusPacket bonusPacket = new BonusPacket(bonus.x, bonus.y, true, 0);
+                    DatagramPacket bonusDataPacket = new DatagramPacket(
+                        bonusPacket.getData(),
+                        bonusPacket.getData().length,
+                        packet.getAddress(),
+                        packet.getPort()
+                    );
+                    socket.send(bonusDataPacket);
                 }
             }
             case DISCONNECT -> {
@@ -201,23 +147,16 @@ public class GameServer implements Runnable {
         }
     }
 
+    public boolean hasClients() {
+        return !clients.isEmpty();
+    }
+
     public void stop() {
         running = false;
+        bonusManager.stop();
         socket.close();
         System.out.println("Server stopped");
     }
 
     private record ClientInfo(InetAddress address, int port) {}
-
-    private static class BonusInfo {
-        final int x;
-        final int y;
-        boolean isActive;
-
-        BonusInfo(int x, int y) {
-            this.x = x;
-            this.y = y;
-            this.isActive = true;
-        }
-    }
 }
