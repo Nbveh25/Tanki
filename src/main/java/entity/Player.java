@@ -4,11 +4,11 @@ import config.GameConfig;
 import core.Camera;
 import enums.Direction;
 import handler.InputHandler;
-import ui.GameOverMenu;
 import util.CollisionChecker;
 import handler.MovementHandler;
 import handler.WeaponHandler;
 import handler.AnimationHandler;
+import manager.GameOverMenuManager;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -28,7 +28,6 @@ public class Player extends Entity {
     private final List<Bullet> bullets;
     private String name;
     private boolean isDead = false;
-    private boolean respawnMenuOpen = false;
     private final CollisionChecker collisionChecker;
 
     public Player(InputHandler inputHandler, CollisionChecker collisionChecker, String name) {
@@ -81,7 +80,7 @@ public class Player extends Entity {
     }
 
     public void update(Map<String, Player> otherPlayers) {
-        if (respawnMenuOpen || isDead) return;
+        if (GameOverMenuManager.getInstance().isRespawnMenuOpen() || isDead) return;
 
         // Обновляем пули
         bullets.removeIf(bullet -> {
@@ -116,7 +115,8 @@ public class Player extends Entity {
         }
 
         // Отрисовка имени
-        drawName(g2, screenX, screenY);
+        drawName(g2, screenX, screenY - 10);
+        drawHealthBar(g2, screenX, screenY - 7);
 
         // Отрисовка пуль
         bullets.forEach(bullet -> bullet.draw(g2));
@@ -138,8 +138,7 @@ public class Player extends Entity {
         g2.setColor(Color.WHITE);
         g2.drawString(name, nameX, nameY);
         
-        // Отрисовка полоски здоровья
-        drawHealthBar(g2, screenX, nameY - metrics.getHeight() - 5);
+
     }
 
     private void drawHealthBar(Graphics2D g2, int screenX, int y) {
@@ -177,7 +176,7 @@ public class Player extends Entity {
             if (health <= 0) {
                 health = 0;
                 isDead = true;
-                showGameOverMenu();
+                GameOverMenuManager.getInstance().handlePlayerDeath(this);
             }
         }
     }
@@ -188,23 +187,9 @@ public class Player extends Entity {
         }
     }
 
-    private void showGameOverMenu() {
-        respawnMenuOpen = true;
-        GameOverMenu menu = new GameOverMenu(this::respawn, this::exitGame);
-        menu.setVisible(true);
-    }
-
-    private void respawn() {
-        isDead = false;
-        respawnMenuOpen = false;
-        health = 100;
-        Random random = new Random();
-        worldX = random.nextInt(GameConfig.MAX_WORLD_COL) * GameConfig.TILE_SIZE;
-        worldY = random.nextInt(GameConfig.MAX_WORLD_ROW) * GameConfig.TILE_SIZE;
-    }
-
-    private void exitGame() {
-        System.exit(0);
+    public void setPosition(int x, int y) {
+        this.worldX = x;
+        this.worldY = y;
     }
 
     // Геттеры и сеттеры
