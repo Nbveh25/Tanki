@@ -34,9 +34,12 @@ public class Player extends Entity {
     private boolean isDead = false;
     private boolean respawnMenuOpen = false;
 
-    public Player(InputHandler inputHandler, CollisionChecker collisionChecker) {
+    private String name;
+
+    public Player(InputHandler inputHandler, CollisionChecker collisionChecker, String name) {
         this.inputHandler = inputHandler;
         this.collisionChecker = collisionChecker;
+        this.name = name;
         this.bullets = new ArrayList<>();
 
         screenX = GameConfig.SCREEN_WIDTH / 2 - (GameConfig.TILE_SIZE / 2);
@@ -179,7 +182,23 @@ public class Player extends Entity {
             g2.drawImage(image, screenX, screenY, GameConfig.TILE_SIZE, GameConfig.TILE_SIZE, null);
         }
 
-        // Отрисовываем все пули
+        // Отрисовка имени над танком
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Arial", Font.BOLD, 12));
+        FontMetrics metrics = g2.getFontMetrics();
+        int nameWidth = metrics.stringWidth(name);
+        int nameX = screenX + (GameConfig.TILE_SIZE - nameWidth) / 2;
+        int nameY = screenY - 5;
+
+        // Фон для имени
+        g2.setColor(new Color(0, 0, 0, 128));
+        g2.fillRect(nameX - 2, nameY - metrics.getAscent(), nameWidth + 4, metrics.getHeight());
+
+        // Само имя
+        g2.setColor(Color.WHITE);
+        g2.drawString(name, nameX, nameY);
+
+        // Отрисовка всех пулей
         bullets.forEach(bullet -> bullet.draw(g2));
     }
 
@@ -295,5 +314,13 @@ public class Player extends Entity {
 
     public boolean isDead() {
         return isDead;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

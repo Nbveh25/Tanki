@@ -108,15 +108,16 @@ public class GameClient implements Runnable {
     }
 
     private void updatePlayerPosition(String playerId, PlayerDataPacket posPacket) {
-        Player player = otherPlayers.computeIfAbsent(playerId, k -> new Player(null, collisionChecker));
-        player.updatePlayer(
-                posPacket.getX(),
-                posPacket.getY(),
-                posPacket.getDirection(),
-                posPacket.getSpriteNum()
+        Player player = otherPlayers.computeIfAbsent(playerId, k -> 
+            new Player(null, collisionChecker, posPacket.getName())
         );
-
-        // Обновляем состояние мертвого игрока
+        player.updatePlayer(
+            posPacket.getX(),
+            posPacket.getY(),
+            posPacket.getDirection(),
+            posPacket.getSpriteNum()
+        );
+        player.setName(posPacket.getName());
         player.updateState(posPacket.isDead());
 
         // Обновляем пули этого игрока с корректным CollisionChecker
@@ -155,11 +156,12 @@ public class GameClient implements Runnable {
 
         try {
             PlayerDataPacket packet = new PlayerDataPacket(
-                    localPlayer.getWorldX(),
-                    localPlayer.getWorldY(),
-                    localPlayer.getDirection(),
-                    localPlayer.getSpriteNum(),
-                    localPlayer.isDead() // Отправляем состояние мертвого игрока
+                localPlayer.getWorldX(),
+                localPlayer.getWorldY(),
+                localPlayer.getDirection(),
+                localPlayer.getSpriteNum(),
+                localPlayer.isDead(),
+                localPlayer.getName()
             );
             sendPacket(packet);
 
@@ -170,15 +172,14 @@ public class GameClient implements Runnable {
                     otherPlayers.values().forEach(otherPlayer -> {
                         if (collisionChecker.checkBulletPlayerCollision(bullet, otherPlayer.getWorldSolidArea()) && !otherPlayer.isDead()) {
                             bullet.setActive(false);
-                            // Здесь можно добавить логику урона по игроку
                         }
                     });
 
                     if (bullet.isActive()) {
                         BulletDataPacket bulletPacket = new BulletDataPacket(
-                                bullet.getWorldX(),
-                                bullet.getWorldY(),
-                                bullet.getDirection()
+                            bullet.getWorldX(),
+                            bullet.getWorldY(),
+                            bullet.getDirection()
                         );
                         sendPacket(bulletPacket);
                     }

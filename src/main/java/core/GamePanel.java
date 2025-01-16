@@ -21,7 +21,7 @@ public class GamePanel extends JPanel implements Runnable {
     private TileManager tileManager;
     private GameClient gameClient;
 
-    public GamePanel(boolean isHost, String serverIp) {
+    public GamePanel(boolean isHost, String serverIp, String playerName) {
         setPreferredSize(new Dimension(GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT));
         setBackground(Color.BLACK);
         setDoubleBuffered(true);
@@ -29,7 +29,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.tileManager = new TileManager();
         this.inputHandler = new InputHandler();
         CollisionChecker collisionChecker = new CollisionChecker(tileManager);
-        this.player = new Player(inputHandler, collisionChecker);
+        this.player = new Player(inputHandler, collisionChecker, playerName);
         this.camera = Camera.getInstance(GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
 
         addKeyListener(inputHandler);
