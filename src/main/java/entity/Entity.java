@@ -20,11 +20,22 @@ public abstract class Entity {
     protected Rectangle solidArea;
     protected boolean collisionOn = false;
 
+    // Абстрактный метод для отрисовки
+    public abstract void draw(Graphics2D g2);
+
     public int getWorldX() { return worldX; }
     public int getWorldY() { return worldY; }
+    public void setPosition(int x, int y) {
+        this.worldX = x;
+        this.worldY = y;
+    }
 
     public Rectangle getSolidArea() {
         return solidArea;
+    }
+
+    public boolean isCollisionOn() {
+        return collisionOn;
     }
 
     public void setCollisionOn(boolean collisionOn) {
@@ -37,6 +48,10 @@ public abstract class Entity {
 
     public Direction getDirection() {
         return direction;
+    }
+
+    public void setDirection(Direction direction) {
+        this.direction = direction;
     }
 
     public int getSpriteNum() {

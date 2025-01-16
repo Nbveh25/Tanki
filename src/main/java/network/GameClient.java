@@ -115,7 +115,8 @@ public class GameClient implements Runnable {
             posPacket.getX(),
             posPacket.getY(),
             posPacket.getDirection(),
-            posPacket.getSpriteNum()
+            posPacket.getSpriteNum(),
+            posPacket.getHealth()
         );
         player.setName(posPacket.getName());
         player.updateState(posPacket.isDead());
@@ -161,7 +162,8 @@ public class GameClient implements Runnable {
                 localPlayer.getDirection(),
                 localPlayer.getSpriteNum(),
                 localPlayer.isDead(),
-                localPlayer.getName()
+                localPlayer.getName(),
+                localPlayer.getHealth()
             );
             sendPacket(packet);
 

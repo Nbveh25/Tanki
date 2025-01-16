@@ -2,7 +2,7 @@ package core;
 
 import config.GameConfig;
 import entity.Player;
-import input.InputHandler;
+import handler.InputHandler;
 import manager.TileManager;
 import util.CollisionChecker;
 import network.GameServer;

@@ -14,43 +14,50 @@ public class PlayerDataPacket implements Packet {
     private final int spriteNum;
     private final boolean isDead;
     private final String name;
+    private final int health;
 
-    public PlayerDataPacket(int x, int y, Direction direction, int spriteNum, boolean isDead, String name) {
+    public PlayerDataPacket(int x, int y, Direction direction, int spriteNum, boolean isDead, String name, int health) {
         this.x = x;
         this.y = y;
         this.direction = direction;
         this.spriteNum = spriteNum;
         this.isDead = isDead;
         this.name = name;
+        this.health = health;
     }
 
     public PlayerDataPacket(byte[] data) {
         ByteBuffer buffer = ByteBuffer.wrap(data);
-        buffer.get(); // Пропускаем тип пакета
+        buffer.get(); // Skip packet type
+
         this.x = buffer.getInt();
         this.y = buffer.getInt();
         this.direction = Direction.values()[buffer.get()];
-        this.spriteNum = buffer.getInt();
-        this.isDead = buffer.get() == 1; // Читаем состояние мертвого игрока
+        this.spriteNum = buffer.get();
+        this.isDead = buffer.get() == 1;
         
-        // Читаем имя
         byte[] nameBytes = new byte[buffer.get()];
         buffer.get(nameBytes);
         this.name = new String(nameBytes, StandardCharsets.UTF_8);
+        
+        this.health = buffer.getInt();
     }
 
     @Override
     public byte[] getData() {
         byte[] nameBytes = name.getBytes(StandardCharsets.UTF_8);
-        ByteBuffer buffer = ByteBuffer.allocate(16 + nameBytes.length);
+        ByteBuffer buffer = ByteBuffer.allocate(1 + 4 + 4 + 1 + 1 + 1 + 1 + nameBytes.length + 4);
+        
         buffer.put((byte) PacketType.PLAYER_DATA.ordinal());
         buffer.putInt(x);
         buffer.putInt(y);
         buffer.put((byte) direction.ordinal());
-        buffer.putInt(spriteNum);
-        buffer.put((byte) (isDead ? 1 : 0)); // Записываем состояние мертвого игрока
+        buffer.put((byte) spriteNum);
+        buffer.put((byte) (isDead ? 1 : 0));
         buffer.put((byte) nameBytes.length);
         buffer.put(nameBytes);
+        buffer.putInt(health);
+        
         return buffer.array();
     }
 
@@ -71,10 +78,14 @@ public class PlayerDataPacket implements Packet {
     }
 
     public boolean isDead() {
-        return isDead; // Метод для получения состояния мертвого игрока
+        return isDead;
     }
 
     public String getName() {
         return name;
+    }
+    
+    public int getHealth() {
+        return health;
     }
 }
