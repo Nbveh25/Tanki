@@ -41,6 +41,8 @@ public class TileLoader {
             tiles[14] = createTile("/tile/red_brick.png");
             tiles[15] = createTile("/tile/gray_brick.png");
 
+            // BUSH
+            tiles[16] = createTile("/tile/grass01.png");
 
 
         } catch (IOException e) {

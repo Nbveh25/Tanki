@@ -3,6 +3,7 @@ package core;
 import config.GameConfig;
 import entity.Player;
 import handler.InputHandler;
+import manager.BushManager;
 import manager.TileManager;
 import util.CollisionChecker;
 import network.GameServer;
@@ -19,6 +20,8 @@ public class GamePanel extends JPanel implements Runnable {
     private final Camera camera;
 
     private TileManager tileManager;
+    private BushManager bushManager;
+
     private GameClient gameClient;
 
     public GamePanel(boolean isHost, String serverIp, String playerName) {
@@ -27,6 +30,8 @@ public class GamePanel extends JPanel implements Runnable {
         setDoubleBuffered(true);
 
         this.tileManager = new TileManager();
+        this.bushManager = BushManager.getInstance();
+
         this.inputHandler = new InputHandler();
         CollisionChecker collisionChecker = new CollisionChecker(tileManager);
         this.player = new Player(inputHandler, collisionChecker, playerName);
@@ -95,7 +100,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         tileManager.draw(g2);
         player.draw(g2);
-        
+
         if (gameClient != null) {
             gameClient.getObjectManager().draw(g2);
             gameClient.getOtherPlayers().values().forEach(otherPlayer -> {
@@ -103,6 +108,7 @@ public class GamePanel extends JPanel implements Runnable {
                 otherPlayer.getBullets().forEach(bullet -> bullet.draw(g2));
             });
         }
+        bushManager.draw(g2);
 
         g2.dispose();
     }
