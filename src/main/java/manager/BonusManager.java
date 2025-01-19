@@ -37,10 +37,8 @@ public class BonusManager {
         while (running) {
             try {
                 Thread.sleep(10000); // Каждые 10 секунд
-                // Очищаем список от неактивных бонусов
                 bonuses.removeIf(bonus -> !bonus.isActive);
-                // Спавним новые бонусы
-                for(int i = 0; i < 3 && bonuses.size() < MAX_BONUSES; i++) {
+                for (int i = 0; i < 3 && bonuses.size() < MAX_BONUSES; i++) {
                     spawnBonus();
                 }
             } catch (InterruptedException e) {
@@ -53,26 +51,38 @@ public class BonusManager {
 
     private void spawnBonus() {
         if (!gameServer.hasClients()) return;
-        
-        // Проверяем количество активных бонусов
+
         long activeCount = bonuses.stream().filter(b -> b.isActive).count();
         if (activeCount >= MAX_BONUSES) {
             return;
         }
 
-        // Спавним бонус в случайной позиции на карте
         Random random = new Random();
-        int x = random.nextInt(GameConfig.MAX_WORLD_COL) * GameConfig.TILE_SIZE;
-        int y = random.nextInt(GameConfig.MAX_WORLD_ROW) * GameConfig.TILE_SIZE;
+        int maxAttempts = 100;
+        int attempts = 0;
 
-        BonusInfo bonus = new BonusInfo(x, y);
-        bonuses.add(bonus);
+        while (attempts < maxAttempts) {
+            int x = random.nextInt(GameConfig.MAX_WORLD_COL) * GameConfig.TILE_SIZE;
+            int y = random.nextInt(GameConfig.MAX_WORLD_ROW) * GameConfig.TILE_SIZE;
 
-        // Отправляем всем клиентам
-        BonusPacket packet = new BonusPacket(x, y, true, 0);
-        gameServer.broadcastPacket(packet);
-        System.out.println("Spawned bonus at: " + x + ", " + y + " (tile: " + x/GameConfig.TILE_SIZE + ", " + y/GameConfig.TILE_SIZE + ")");
-        System.out.println("Active bonuses: " + (activeCount + 1) + "/" + MAX_BONUSES);
+            int col = x / GameConfig.TILE_SIZE;
+            int row = y / GameConfig.TILE_SIZE;
+
+            TileManager tileManager = TileManager.getInstance();
+            int tileNum = tileManager.getTileNumber(col, row);
+            if (!tileManager.isTileHasCollision(tileNum)) {
+                BonusInfo bonus = new BonusInfo(x, y);
+                bonuses.add(bonus);
+
+                BonusPacket packet = new BonusPacket(x, y, true, 0);
+                gameServer.broadcastPacket(packet);
+                System.out.println("Spawned bonus at: " + x + ", " + y + " (tile: " + col + ", " + row + ")");
+                System.out.println("Active bonuses: " + (activeCount + 1) + "/" + MAX_BONUSES);
+                return;
+            }
+
+            attempts++;
+        }
     }
 
     public void deactivateBonus(int x, int y) {
@@ -101,4 +111,4 @@ public class BonusManager {
             this.isActive = true;
         }
     }
-} 
+}

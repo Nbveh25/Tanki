@@ -22,6 +22,8 @@ public class GamePanel extends JPanel implements Runnable {
     private TileManager tileManager;
     private BushManager bushManager;
 
+    private final CollisionChecker collisionChecker;
+
     private GameClient gameClient;
 
     public GamePanel(boolean isHost, String serverIp, String playerName) {
@@ -33,7 +35,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.bushManager = BushManager.getInstance();
 
         this.inputHandler = new InputHandler();
-        CollisionChecker collisionChecker = new CollisionChecker();
+        this.collisionChecker = new CollisionChecker();
         this.player = new Player(inputHandler, collisionChecker, playerName);
         this.camera = Camera.getInstance(GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
 
