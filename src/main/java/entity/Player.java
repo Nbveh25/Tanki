@@ -55,10 +55,10 @@ public class Player extends Entity {
     private void setCollision(boolean mode) {
         if (mode) {
             solidArea = new Rectangle();
-            solidArea.x = 4;
-            solidArea.y = 4;
-            solidArea.width = 40;
-            solidArea.height = 40;
+            solidArea.x = 6;
+            solidArea.y = 6;
+            solidArea.width = 36;
+            solidArea.height = 36;
         } else {
             solidArea = null;
         }
@@ -187,11 +187,6 @@ public class Player extends Entity {
         if (!isDead) {
             health = Math.min(100, health + amount);
         }
-    }
-
-    public void setPosition(int x, int y) {
-        this.worldX = x;
-        this.worldY = y;
     }
 
     // Геттеры и сеттеры

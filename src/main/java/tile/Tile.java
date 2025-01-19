@@ -4,7 +4,8 @@ import java.awt.image.BufferedImage;
 
 public class Tile {
     private BufferedImage image;
-    private boolean collision = false ;
+    private boolean collision = false;
+    private boolean isBulletPassable = false;
 
 
     public BufferedImage getImage() {
@@ -22,4 +23,8 @@ public class Tile {
     public void setCollision(boolean collision) {
         this.collision = collision;
     }
+
+    public boolean isBulletPassable() {return isBulletPassable; }
+
+    public void setBulletPassable(boolean bulletPassable) { this.isBulletPassable = bulletPassable; }
 }

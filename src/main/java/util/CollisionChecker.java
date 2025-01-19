@@ -67,7 +67,7 @@ public class CollisionChecker {
         Rectangle bulletArea = bullet.getCollisionArea();
         for (int row = 0; row < GameConfig.MAX_WORLD_ROW; row++) {
             for (int col = 0; col < GameConfig.MAX_WORLD_COL; col++) {
-                if (tileManager.isTileHasCollision(tileManager.getTileNumber(col, row))) {
+                if (tileManager.isTileHasCollision(tileManager.getTileNumber(col, row)) && !tileManager.isTileBulletPassable(tileManager.getTileNumber(col, row))) {
                     Rectangle blockArea = new Rectangle(col * GameConfig.TILE_SIZE, row * GameConfig.TILE_SIZE, GameConfig.TILE_SIZE, GameConfig.TILE_SIZE);
                     if (bulletArea.intersects(blockArea)) {
                         return true;

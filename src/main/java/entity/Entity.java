@@ -25,6 +25,7 @@ public abstract class Entity {
 
     public int getWorldX() { return worldX; }
     public int getWorldY() { return worldY; }
+
     public void setPosition(int x, int y) {
         this.worldX = x;
         this.worldY = y;

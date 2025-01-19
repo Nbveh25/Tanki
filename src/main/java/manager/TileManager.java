@@ -55,4 +55,11 @@ public class TileManager {
         }
         return false;
     }
+
+    public boolean isTileBulletPassable(int tileNum) {
+        if (tileNum >= 0 && tileNum < tiles.length && tiles[tileNum] != null) {
+            return tiles[tileNum].isBulletPassable();
+        }
+        return false;
+    }
 }

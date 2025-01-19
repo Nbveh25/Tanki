@@ -68,10 +68,6 @@ public class ObjectManager {
         hearts.removeIf(heart -> !heart.isActive);
     }
 
-    public List<OBJ_Heart> getHearts() {
-        return hearts;
-    }
-
     public void deactivateHeart(int x, int y) {
         for (OBJ_Heart heart : hearts) {
             if (heart.worldX == x && heart.worldY == y) {
@@ -79,5 +75,9 @@ public class ObjectManager {
                 break;
             }
         }
+    }
+
+    public List<OBJ_Heart> getHearts() {
+        return hearts;
     }
 }
