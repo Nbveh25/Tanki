@@ -29,11 +29,11 @@ public class GamePanel extends JPanel implements Runnable {
         setBackground(Color.BLACK);
         setDoubleBuffered(true);
 
-        this.tileManager = new TileManager();
+        this.tileManager = TileManager.getInstance();
         this.bushManager = BushManager.getInstance();
 
         this.inputHandler = new InputHandler();
-        CollisionChecker collisionChecker = new CollisionChecker(tileManager);
+        CollisionChecker collisionChecker = new CollisionChecker();
         this.player = new Player(inputHandler, collisionChecker, playerName);
         this.camera = Camera.getInstance(GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
 

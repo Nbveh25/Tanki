@@ -19,7 +19,7 @@ public class BushManager {
 
     private BushManager() {
         bushPositions = new ArrayList<>();
-        tileManager = new TileManager();
+        tileManager = TileManager.getInstance();
         loadSprite();
         loadBushesFromMap();
     }

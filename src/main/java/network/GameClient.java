@@ -44,7 +44,7 @@ public class GameClient implements Runnable {
         this.localPlayer = localPlayer;
         this.running = true;
         this.connected = false;
-        this.collisionChecker = new CollisionChecker(new TileManager());
+        this.collisionChecker = new CollisionChecker();
         this.objectManager = new ObjectManager(this);
 
         // Отправляем пакет подключения

@@ -9,15 +9,20 @@ import util.TileLoader;
 import java.awt.*;
 
 public class TileManager {
+    private static final TileManager instance = new TileManager();
     private final Tile[] tiles;
     private final int[][] mapTileNum;
 
-    public TileManager() {
+    private TileManager() {
         TileLoader tileLoader = new TileLoader();
         this.tiles = tileLoader.loadTiles();
 
         MapLoader mapLoader = new MapLoader();
         this.mapTileNum = mapLoader.loadMap("/map/tile_map.txt");
+    }
+
+    public static TileManager getInstance() {
+        return instance;
     }
 
     public void draw(Graphics2D g2) {

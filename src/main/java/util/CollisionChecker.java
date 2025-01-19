@@ -9,11 +9,7 @@ import manager.TileManager;
 import java.awt.*;
 
 public class CollisionChecker {
-    private final TileManager tileManager;
-
-    public CollisionChecker(TileManager tileManager) {
-        this.tileManager = tileManager;
-    }
+    private final TileManager tileManager = TileManager.getInstance();
 
     public void checkTile(Entity entity) {
         int entityLeftWorldX = entity.getWorldX() + entity.getSolidArea().x;
