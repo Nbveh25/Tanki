@@ -36,3 +36,9 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+map.txt
+out
+META-INF
+target
+.idea
