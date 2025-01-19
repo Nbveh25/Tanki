@@ -82,6 +82,8 @@ public class Player extends Entity {
     public void update(Map<String, Player> otherPlayers) {
         if (GameOverMenuManager.getInstance().isRespawnMenuOpen() || isDead) return;
 
+        // Сбрасываю состояние коллизии чтобы игрок не застревал
+        collisionOn = false;
         // Обновляем пули
         bullets.removeIf(bullet -> {
             bullet.update(collisionChecker);

@@ -29,7 +29,6 @@ public class PlayerDataPacket implements Packet {
     public PlayerDataPacket(byte[] data) {
         ByteBuffer buffer = ByteBuffer.wrap(data);
         buffer.get(); // Skip packet type
-
         this.x = buffer.getInt();
         this.y = buffer.getInt();
         this.direction = Direction.values()[buffer.get()];

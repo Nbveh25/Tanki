@@ -22,7 +22,9 @@ public class TileLoader {
 
             // RIVER
             tiles[5] = createTile("/tile/cost_down.png");
+            tiles[5].setCollision(true);
             tiles[6] = createTile("/tile/cost_up.png");
+            tiles[6].setCollision(true);
 
             // RIVER CORNER
             tiles[7] = createTile("/tile/cost_left_down_corner.png");
