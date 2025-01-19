@@ -7,38 +7,51 @@ public class Main {
     public static void main(String[] args) {
         JFrame frame = new JFrame("Game Settings");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(300, 250);
-        frame.setLayout(new GridLayout(4, 2));
+        frame.setSize(400, 300);
+        frame.setLayout(new BorderLayout());
 
-        // Поле для ввода имени
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridLayout(4, 2, 10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        mainPanel.setBackground(new Color(240, 240, 240));
+
         JLabel nameLabel = new JLabel("Player Name:");
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
         JTextField nameField = new JTextField("Player1");
+        nameField.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        // Поле для ввода IP-адреса
         JLabel ipLabel = new JLabel("Server IP:");
+        ipLabel.setFont(new Font("Arial", Font.BOLD, 14));
         JTextField ipField = new JTextField("localhost");
+        ipField.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        // Чекбокс для выбора хоста
         JLabel hostLabel = new JLabel("Is Host:");
+        hostLabel.setFont(new Font("Arial", Font.BOLD, 14));
         JCheckBox hostCheckBox = new JCheckBox("", true);
+        hostCheckBox.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        // Кнопка для подтверждения ввода
         JButton startButton = new JButton("Start Game");
+        startButton.setFont(new Font("Arial", Font.BOLD, 14));
+        startButton.setBackground(new Color(50, 150, 250));
+        startButton.setForeground(Color.WHITE);
+        startButton.setFocusPainted(false);
+        startButton.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Добавляем элементы на панель
-        frame.add(nameLabel);
-        frame.add(nameField);
-        frame.add(ipLabel);
-        frame.add(ipField);
-        frame.add(hostLabel);
-        frame.add(hostCheckBox);
-        frame.add(new JLabel());
-        frame.add(startButton);
+        mainPanel.add(nameLabel);
+        mainPanel.add(nameField);
+        mainPanel.add(ipLabel);
+        mainPanel.add(ipField);
+        mainPanel.add(hostLabel);
+        mainPanel.add(hostCheckBox);
+        mainPanel.add(new JLabel());
+        mainPanel.add(startButton);
+
+        frame.add(mainPanel, BorderLayout.CENTER);
 
         startButton.addActionListener(e -> {
             String playerName = nameField.getText().trim();
             if (playerName.isEmpty()) {
-                JOptionPane.showMessageDialog(frame, "Please enter a player name!");
+                JOptionPane.showMessageDialog(frame, "Please enter a player name!", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -61,6 +74,7 @@ public class Main {
             gameWindow.setVisible(true);
         });
 
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 }
