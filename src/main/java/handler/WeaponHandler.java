@@ -10,7 +10,7 @@ import java.util.List;
 public class WeaponHandler {
     private final InputHandler inputHandler;
     private long lastFireTime;
-    private static final long FIRE_COOLDOWN = 500;
+    private static final long FIRE_COOLDOWN = 2000;
 
     public WeaponHandler(InputHandler inputHandler) {
         this.inputHandler = inputHandler;
@@ -20,6 +20,7 @@ public class WeaponHandler {
         if (inputHandler != null && inputHandler.isFirePressed()) {
             long currentTime = System.currentTimeMillis();
             if (currentTime - lastFireTime >= FIRE_COOLDOWN) {
+                player.isShooting = true;
                 createBullet(player, bullets);
                 lastFireTime = currentTime;
             }

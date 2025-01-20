@@ -4,6 +4,7 @@ import config.GameConfig;
 import entity.Player;
 import handler.InputHandler;
 import manager.BushManager;
+import manager.SoundManager;
 import manager.TileManager;
 import util.CollisionChecker;
 import network.GameServer;
@@ -18,6 +19,7 @@ public class GamePanel extends JPanel implements Runnable {
     private final InputHandler inputHandler;
     private final Player player;
     private final Camera camera;
+    private final SoundManager soundManager; // Добавляем SoundManager
 
     private TileManager tileManager;
     private BushManager bushManager;
@@ -38,6 +40,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.collisionChecker = new CollisionChecker();
         this.player = new Player(inputHandler, collisionChecker, playerName);
         this.camera = Camera.getInstance(GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
+        this.soundManager = new SoundManager(); // Инициализируем SoundManager
 
         addKeyListener(inputHandler);
         setFocusable(true);
@@ -52,6 +55,8 @@ public class GamePanel extends JPanel implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        soundManager.playBackgroundMusic();
     }
 
     public void startGameThread() {
@@ -64,7 +69,7 @@ public class GamePanel extends JPanel implements Runnable {
         double drawInterval = 1_000_000_000D / GameConfig.FPS;
         double delta = 0;
         long lastTime = System.nanoTime();
-        
+
         while (gameThread != null) {
 
             long currentTime = System.nanoTime();
@@ -83,12 +88,21 @@ public class GamePanel extends JPanel implements Runnable {
         if (gameClient != null) {
             player.update(gameClient.getOtherPlayers());
             camera.update(player);
-            
+
             // Проверяем коллизии с бонусами
-            gameClient.getObjectManager().checkCollision(player);
+            if (gameClient.getObjectManager().checkCollision(player)) {
+                soundManager.playBonusPickupSound(); // Воспроизводим звук поднятия бонуса
+            }
             gameClient.getObjectManager().removeInactiveHearts();
-            
+
             gameClient.sendPlayerPosition();
+
+            // Воспроизводим звук выстрела, если игрок стреляет
+            if (player.isShooting) {
+                soundManager.playShootSound();
+                player.isShooting = false;
+            }
+
         } else {
             player.update(null);
             camera.update(player);
@@ -114,4 +128,4 @@ public class GamePanel extends JPanel implements Runnable {
 
         g2.dispose();
     }
-} 
+}

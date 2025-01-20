@@ -4,6 +4,7 @@ import config.GameConfig;
 import core.Camera;
 import enums.Direction;
 import handler.InputHandler;
+import manager.TileManager;
 import util.CollisionChecker;
 import handler.MovementHandler;
 import handler.WeaponHandler;
@@ -29,6 +30,7 @@ public class Player extends Entity {
     private String name;
     private boolean isDead = false;
     private final CollisionChecker collisionChecker;
+    public boolean isShooting = false;
 
     public Player(InputHandler inputHandler, CollisionChecker collisionChecker, String name) {
         this.collisionChecker = collisionChecker;
@@ -45,9 +47,20 @@ public class Player extends Entity {
 
     private void setDefaultValues() {
         Random random = new Random();
-        worldX = random.nextInt(5) * GameConfig.TILE_SIZE;
-        worldY = random.nextInt(5) * GameConfig.TILE_SIZE;
-        speed = 10;
+        boolean spawned = false;
+
+        while (!spawned) {
+            int col = random.nextInt(GameConfig.MAX_WORLD_COL);
+            int row = random.nextInt(GameConfig.MAX_WORLD_ROW);
+
+            if (TileManager.getInstance().isTileFreeForSpawn(col, row)) {
+                worldX = col * GameConfig.TILE_SIZE;
+                worldY = row * GameConfig.TILE_SIZE;
+                spawned = true;
+            }
+        }
+
+        speed = 2;
         direction = Direction.DOWN;
         health = 100;
     }
@@ -84,19 +97,19 @@ public class Player extends Entity {
 
         // Сбрасываю состояние коллизии чтобы игрок не застревал
         collisionOn = false;
-        // Обновляем пули
+        // Обновляю пули
         bullets.removeIf(bullet -> {
             bullet.update(collisionChecker);
             return !bullet.isActive();
         });
 
-        // Обновляем движение
+        // Обновляю движение
         direction = movementHandler.handleMovement(this, otherPlayers);
 
-        // Обновляем стрельбу
+        // Обновляю стрельбу
         weaponHandler.handleShooting(this, bullets);
 
-        // Обновляем анимацию
+        // Обновляю анимацию
         animationHandler.update();
     }
 
@@ -139,7 +152,7 @@ public class Player extends Entity {
         // Само имя
         g2.setColor(Color.WHITE);
         g2.drawString(name, nameX, nameY);
-        
+
 
     }
 
@@ -178,6 +191,7 @@ public class Player extends Entity {
             if (health <= 0) {
                 health = 0;
                 isDead = true;
+
                 GameOverMenuManager.getInstance().handlePlayerDeath(this);
             }
         }

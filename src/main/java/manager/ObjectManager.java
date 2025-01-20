@@ -45,17 +45,17 @@ public class ObjectManager {
         hearts.add(heart);
     }
 
-    public void checkCollision(Player player) {
-        Iterator<OBJ_Heart> iterator = hearts.iterator();
-        while (iterator.hasNext()) {
-            OBJ_Heart heart = iterator.next();
+    public boolean checkCollision(Player player) {
+        for (OBJ_Heart heart : hearts) {
             if (heart.isActive && checkCollision(player, heart)) {
                 heart.isActive = false;
                 player.heal(20);
                 gameClient.sendBonusPickup(heart.worldX, heart.worldY);
                 System.out.println("Player collected heart! Health: " + player.getHealth());
+                return true;
             }
         }
+        return false;
     }
 
     private boolean checkCollision(Player player, OBJ_Heart heart) {

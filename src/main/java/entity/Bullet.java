@@ -20,7 +20,7 @@ public class Bullet {
         this.worldX = worldX;
         this.worldY = worldY;
         this.direction = direction;
-        this.speed = 4;
+        this.speed = 6;
         this.active = true;
     }
 

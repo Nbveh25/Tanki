@@ -67,4 +67,9 @@ public class TileManager {
         }
         return false;
     }
+
+    public boolean isTileFreeForSpawn(int col, int row) {
+        int tileNum = getTileNumber(col, row);
+        return !isTileHasCollision(tileNum); // Проверяем, что тайл не имеет коллизии
+    }
 }
