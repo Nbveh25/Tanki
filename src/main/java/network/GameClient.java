@@ -4,7 +4,6 @@ import config.NetworkConfig;
 import entity.Bullet;
 import entity.Player;
 import manager.ObjectManager;
-import manager.TileManager;
 import network.packet.Packet;
 import network.packet.impl.ConnectPacket;
 import network.packet.impl.DisconnectPacket;
@@ -103,6 +102,10 @@ public class GameClient implements Runnable {
             case BONUS -> {
                 BonusPacket bonusPacket = new BonusPacket(data);
                 handleBonus(bonusPacket);
+            }
+            case DISCONNECT -> {
+                otherPlayers.remove(playerId); // Удаляем отключенного игрока
+                System.out.println("Player disconnected: " + playerId);
             }
         }
     }
@@ -250,7 +253,6 @@ public class GameClient implements Runnable {
     private void handleBonus(BonusPacket packet) {
         if (packet.getType() == 0) { // Сердце
             if (packet.isActive()) {
-                // Создаем новое сердце
                 OBJ_Heart heart = new OBJ_Heart();
                 heart.worldX = packet.getX();
                 heart.worldY = packet.getY();
@@ -258,7 +260,6 @@ public class GameClient implements Runnable {
                 objectManager.addHeart(heart);
                 System.out.println("Received heart at: " + packet.getX() + ", " + packet.getY());
             } else {
-                // Деактивируем существующее сердце
                 objectManager.deactivateHeart(packet.getX(), packet.getY());
                 System.out.println("Deactivated heart at: " + packet.getX() + ", " + packet.getY());
             }

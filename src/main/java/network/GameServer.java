@@ -1,10 +1,8 @@
 package network;
 
-import config.GameConfig;
 import config.NetworkConfig;
 import network.packet.Packet;
-import network.packet.impl.BulletDataPacket;
-import network.packet.impl.PlayerDataPacket;
+import network.packet.impl.DisconnectPacket;
 import network.packet.impl.BonusPacket;
 import network.packet.enums.PacketType;
 import manager.BonusManager;
@@ -15,9 +13,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Random;
 
 public class GameServer implements Runnable {
     private final DatagramSocket socket;
@@ -83,7 +78,7 @@ public class GameServer implements Runnable {
         switch (type) {
             case BULLET_DATA, PLAYER_DATA, BONUS -> {
                 broadcastToOtherClients(packet, clientId);
-                
+
                 // Если это пакет о подборе бонуса, обновляем состояние на сервере
                 if (type == PacketType.BONUS) {
                     BonusPacket bonusPacket = new BonusPacket(data);
@@ -99,15 +94,15 @@ public class GameServer implements Runnable {
                 System.out.println("New client connected: " + clientId);
                 // Отправляем подтверждение подключения
                 sendConnectionConfirmation(packet.getAddress(), packet.getPort());
-                
+
                 // Отправляем информацию о существующих бонусах
                 for (BonusManager.BonusInfo bonus : bonusManager.getActiveBonuses()) {
                     BonusPacket bonusPacket = new BonusPacket(bonus.x, bonus.y, true, 0);
                     DatagramPacket bonusDataPacket = new DatagramPacket(
-                        bonusPacket.getData(),
-                        bonusPacket.getData().length,
-                        packet.getAddress(),
-                        packet.getPort()
+                            bonusPacket.getData(),
+                            bonusPacket.getData().length,
+                            packet.getAddress(),
+                            packet.getPort()
                     );
                     socket.send(bonusDataPacket);
                 }
@@ -115,6 +110,8 @@ public class GameServer implements Runnable {
             case DISCONNECT -> {
                 clients.remove(clientId);
                 System.out.println("Client disconnected: " + clientId);
+                // Отправляем пакет отключения всем клиентам
+                broadcastPacket(new DisconnectPacket());
             }
         }
     }
