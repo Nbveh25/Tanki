@@ -114,6 +114,8 @@ public class GameClient implements Runnable {
         Player player = otherPlayers.computeIfAbsent(playerId, k -> 
             new Player(null, collisionChecker, posPacket.getName())
         );
+        
+        // Обновляем состояние игрока, включая номер спрайта
         player.updatePlayer(
             posPacket.getX(),
             posPacket.getY(),
@@ -121,6 +123,7 @@ public class GameClient implements Runnable {
             posPacket.getSpriteNum(),
             posPacket.getHealth()
         );
+        
         player.setName(posPacket.getName());
         player.updateState(posPacket.isDead());
 
@@ -159,11 +162,12 @@ public class GameClient implements Runnable {
         }
 
         try {
+            // Отправляем текущее состояние игрока, включая номер спрайта
             PlayerDataPacket packet = new PlayerDataPacket(
                 localPlayer.getWorldX(),
                 localPlayer.getWorldY(),
                 localPlayer.getDirection(),
-                localPlayer.getSpriteNum(),
+                localPlayer.getSpriteNum(), // Получаем текущий номер спрайта
                 localPlayer.isDead(),
                 localPlayer.getName(),
                 localPlayer.getHealth()

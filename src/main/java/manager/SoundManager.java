@@ -23,7 +23,7 @@ public class SoundManager {
             // Загрузка звука поднятия бонуса
             bonusPickupSound = loadSound("/sound/bonus_pickup.wav"); // Новый звук
             // Загрузка фоновой музыки
-            //backgroundMusic = loadSound("/sound/background.wav");
+            backgroundMusic = loadSound("/sound/background.wav");
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -229,14 +229,24 @@ public class Player extends Entity {
     }
 
     public void updatePlayer(int newWorldX, int newWorldY, Direction newDirection, int newSpriteNum, int newHealth) {
+        // Обновляем позицию и направление
         this.worldX = newWorldX;
         this.worldY = newWorldY;
         this.direction = newDirection;
-        this.spriteNum = newSpriteNum;
+        
+        // Обновляем номер спрайта через AnimationHandler
+        this.animationHandler.setSpriteNum(newSpriteNum);
+        
+        // Обновляем здоровье
         this.health = newHealth;
     }
 
     public int getHealth() {
         return health;
+    }
+
+    // Добавляем метод для получения текущего номера спрайта
+    public int getSpriteNum() {
+        return animationHandler.getSpriteNum();
     }
 }

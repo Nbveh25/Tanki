@@ -8,21 +8,20 @@ public class AnimationHandler {
     private int spriteNum = 1;
     private static final int ANIMATION_SPEED = 14;
     private final InputHandler inputHandler;
+    private final boolean isRemotePlayer;
 
     public AnimationHandler(InputHandler inputHandler) {
         this.inputHandler = inputHandler;
+        this.isRemotePlayer = (inputHandler == null);
     }
 
     public void update() {
-        if (isMoving()) {
+        if (!isRemotePlayer && isMoving()) {
             spriteCounter++;
             if (spriteCounter > ANIMATION_SPEED) {
                 spriteNum = (spriteNum == 1) ? 2 : 1;
                 spriteCounter = 0;
             }
-        } else {
-            spriteNum = 1;
-            spriteCounter = 0;
         }
     }
 
@@ -49,5 +48,11 @@ public class AnimationHandler {
 
     public int getSpriteNum() {
         return spriteNum;
+    }
+
+    public void setSpriteNum(int num) {
+        if (isRemotePlayer) {
+            this.spriteNum = num;
+        }
     }
 } 
